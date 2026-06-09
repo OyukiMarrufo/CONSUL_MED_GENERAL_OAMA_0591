@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>CONSUL-MED GENERAL</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fffafc;
+        }
+        /* --- Encabezado --- */
+        header {
+            background-color: #F73696;
+            padding: 25px;
+            color: white;
+            display: table;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .header-col {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .col-logo-izq {
+        width: 20%; 
+        text-align: left;
+        padding-left: 20px; 
+        }
+        .col-titulo { width: 60%; text-align: center; }
+        .col-logo-der { width: 20%; text-align: right; padding-right: 20px; } 
+        header img { max-width: 150px; height: auto; }
+        header h1 { margin: 0; font-size: 38px; text-transform: uppercase; letter-spacing: 2px; }
+        header p { margin: 5px 0 0 0; font-size: 18px; } 
+
+        /* --- Barra de navegación --- */
+        nav { background-color: #FA8EC4; padding: 10px 0; }
+        nav ul { list-style-type: none; margin: 0; padding: 0; text-align: center; }
+        nav ul li { display: inline; margin: 0 20px; }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        nav ul li a:hover { text-decoration: underline; }
+
+        /* --- Cuerpo --- */
+        .contenedor-cuerpo {
+            padding: 40px;
+            text-align: center;
+            min-height: 400px;
+        }
+
+        .seccion-contenido { display: none; }
+        .seccion-activa { display: block; }
+        h1.titulo-seccion { color: #F73696; margin-bottom: 25px; }
+
+        /* --- Estilos de Formulario --- */
+        .contenedor-formulario {
+            background-color: white;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: left;
+            border: 1px solid #FCBADB;
+        }
+
+        .grupo-form { margin-bottom: 15px; }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            color: #F73696;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], 
+        input[type="date"], 
+        input[type="email"], 
+        input[type="tel"], 
+        input[type="number"],
+        select, 
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #FCBADB;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .btn-enviar {
+            background-color: #F73696;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-enviar:hover { background-color: #FA8EC4; }
+
+        /* --- Estilos de Tabla --- */
+        .tabla-responsiva {
+            overflow-x: auto;
+            margin: 20px auto;
+            width: 98%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 12px;
+        }
+
+        th, td {
+            border: 1px solid #FCBADB;
+            padding: 10px 5px;
+            text-align: center;
+        }
+
+        th { background-color: #F73696; color: white; white-space: nowrap; }
+        tr:nth-child(even) { background-color: #FFF0F5; }
+
+        footer {
+            background-color: #FCBADB;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function mostrarSeccion(idSeccion) {
+            var secciones = document.getElementsByClassName('seccion-contenido');
+            for (var i = 0; i < secciones.length; i++) {
+                secciones[i].classList.remove('seccion-activa');
+            }
+            document.getElementById(idSeccion).classList.add('seccion-activa');
+        }
+
+        // Función para calcular la edad basándose en la fecha de nacimiento
+        function calcularEdad(fechaNacimiento) {
+            if(!fechaNacimiento) return "---";
+            var hoy = new Date();
+            var cumpleanos = new Date(fechaNacimiento);
+            var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+            var m = hoy.getMonth() - cumpleanos.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
+        // Función para agregar Paciente dinámicamente
+        function guardarPaciente(event) {
+            event.preventDefault(); // Evita que la página se recargue
+            
+            // Obtener valores del formulario
+            var nombre = document.getElementById('p_nombre').value || "---";
+            var nacimiento = document.getElementById('p_nacimiento').value || "---";
+            var genero = document.getElementById('p_genero').value;
+            var telefono = document.getElementById('p_telefono').value || "---";
+            var sangre = document.getElementById('p_sangre').value || "---";
+            var curp = document.getElementById('p_curp').value || "---";
+            var domicilio = document.getElementById('p_domicilio').value || "---";
+            var correo = document.getElementById('p_correo').value || "---";
+            var emergencia = document.getElementById('p_emergencia').value || "---";
+            
+            var edad = calcularEdad(nacimiento);
+
+            // Generar un ID automático basado en las filas actuales
+            var tabla = document.getElementById('tabla-pacientes').getElementsByTagName('tbody')[0];
+            var numFilas = tabla.rows.length + 1;
+            var idPaciente = "P-" + String(numFilas).padStart(3, '0');
+
+            // Crear nueva fila
+            var nuevaFila = tabla.insertRow();
+            nuevaFila.innerHTML = `
+                <td>${idPaciente}</td>
+                <td>${nombre}</td>
+                <td>${nacimiento}</td>
+                <td>${genero}</td>
+                <td>${telefono}</td>
+                <td>${sangre}</td>
+                <td>${edad}</td>
+                <td>${domicilio}</td>
+                <td>${curp}</td>
+                <td>${correo}</td>
+                <td>${emergencia}</td>
+            `;
+
+            // Limpiar formulario y avisar
+            document.getElementById('form-pacientes').reset();
+            alert("Paciente guardado con éxito y añadido a la tabla inferior.");
+        }
+
+        // Función para agregar Médico dinámicamente
+        function guardarMedico(event) {
+            event.preventDefault();
+            
+            var nombre = document.getElementById('m_nombre').value || "---";
+            var cedula = document.getElementById('m_cedula').value || "---";
+            var especialidad = document.getElementById('m_especialidad').value || "---";
+            var turno = document.getElementById('m_turno').value;
+            var dias = document.getElementById('m_dias').value || "---";
+            var correo = document.getElementById('m_correo').value || "---";
+            var telefono = document.getElementById('m_telefono').value || "---";
+            
+            var tabla = document.getElementById('tabla-medicos').getElementsByTagName('tbody')[0];
+            var numFilas = tabla.rows.length + 1;
+            var idMedico = "MED-" + (100 + numFilas);
+
+            var nuevaFila = tabla.insertRow();
+            nuevaFila.innerHTML = `
+                <td>${idMedico}</td>
+                <td>${nombre}</td>
+                <td>${cedula}</td>
+                <td>${especialidad}</td>
+                <td>30</td> <td>${turno}</td>
+                <td>${dias}</td>
+                <td>Consultorio Gral.</td>
+                <td>${telefono}</td>
+                <td>${correo}</td>
+            `;
+
+            document.getElementById('form-medicos').reset();
+            alert("Médico registrado con éxito y añadido a la tabla inferior.");
+        }
+
+        // Función para agregar Expediente dinámicamente
+        function guardarExpediente(event) {
+            event.preventDefault();
+            
+            var idPaciente = document.getElementById('e_id').value || "P-000";
+            var nombre = document.getElementById('p_nombre').value || "---";
+            var nacimiento = document.getElementById('p_nacimiento').value || "---";
+            var genero = document.getElementById('p_genero').value;
+            var telefono = document.getElementById('p_telefono').value || "---";
+            var sangre = document.getElementById('p_sangre').value || "---";
+            var curp = document.getElementById('p_curp').value || "---";
+            var domicilio = document.getElementById('p_domicilio').value || "---";
+            var correo = document.getElementById('p_correo').value || "---";
+            var emergencia = document.getElementById('p_emergencia').value || "---";
+            var signos = document.getElementById('e_signos').value || "---";
+            var diagnostico = document.getElementById('e_diagnostico').value || "---";
+            var tratamiento = document.getElementById('e_tratamiento').value || "---";
+            
+            var tabla = document.getElementById('tabla-expedientes').getElementsByTagName('tbody')[0];
+
+            var nuevaFila = tabla.insertRow();
+            nuevaFila.innerHTML = `
+                <td>${idPaciente}</td>
+                <td>${nombre}</td>
+                <td>${nacimiento}</td>
+                <td>${genero}</td>
+                <td>${telefono}</td>
+                <td>${sangre}</td>
+                <td>${edad}</td>
+                <td>${domicilio}</td>
+                <td>${curp}</td>
+                <td>${correo}</td>
+                <td>${emergencia}</td>
+                <td>${signos}</td>
+                <td>${diagnostico}</td>
+                <td>${tratamiento}</td>
+            `;
+
+            document.getElementById('form-expedientes').reset();
+            alert("Registro de expediente finalizado y añadido a la tabla inferior.");
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="header-col col-logo-izq">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Consul-Med">
+        </div>
+        <div class="header-col col-titulo">
+            <h1>CONSUL-MED GENERAL</h1> 
+            <p><em>"Excelencia médica a tu alcance"</em></p>
+        </div>
+        <div class="header-col col-logo-der">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Consul-Med">
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a onclick="mostrarSeccion('inicio')">Inicio</a></li>
+            <li><a onclick="mostrarSeccion('pacientes')">Pacientes</a></li>
+            <li><a onclick="mostrarSeccion('medicos')">Médicos</a></li>
+            <li><a onclick="mostrarSeccion('expediente')">Expediente</a></li>
+        </ul>
+    </nav>
+
+    <section class="contenedor-cuerpo">
+        
+        <div id="inicio" class="seccion-contenido seccion-activa">
+            <article>
+                <h1 class="titulo-seccion">Acerca de nosotros</h1>
+                <p>"Donde la precisión de la medicina se une con la calidez del cuidado."</p>
+                <p>Bienvenido al sistema de gestión de Consul-Med. Utilice el menú superior para acceder a los formularios de registro y visualización de datos.</p>
+            </article>
+        </div>
+
+        <div id="pacientes" class="seccion-contenido">
+            <h1 class="titulo-seccion">Registro de Pacientes</h1>
+            
+            <div class="contenedor-formulario">
+                <form id="form-pacientes" onsubmit="guardarPaciente(event)">
+                    <div class="grupo-form"><label>Nombre Completo:</label><input type="text" id="p_nombre" placeholder="Ej. Ana Karen Garcia Lopez"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Nacimiento:</label><input type="date" id="p_nacimiento"></div>
+                        <div class="grupo-form" style="flex: 1;"><label>Género:</label>
+                            <select id="p_genero">
+                                <option>Seleccione...</option>
+                                <option>Femenino</option>
+                                <option>Masculino</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Teléfono:</label><input type="tel" id="p_telefono"></div>
+                        <div class="grupo-form" style="flex: 1;"><label>Tipo de Sangre:</label><input type="text" id="p_sangre" placeholder="O+"></div>
+                    </div>
+                    <div class="grupo-form"><label>CURP:</label><input type="text" id="p_curp"></div>
+                    <div class="grupo-form"><label>Domicilio:</label><input type="text" id="p_domicilio"></div>
+                    <div class="grupo-form"><label>Correo Electrónico:</label><input type="email" id="p_correo"></div>
+                    <div class="grupo-form"><label>Contacto de Emergencia:</label><input type="text" id="p_emergencia" placeholder="Nombre y Teléfono"></div>
+                    <button type="submit" class="btn-enviar">Guardar Paciente</button>
+                </form>
+            </div>
+
+            <h2 style="color: #F73696;">Lista de Pacientes Registrados</h2>
+            <div class="tabla-responsiva">
+                <table id="tabla-pacientes">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacimiento</th>
+                            <th>Género</th>
+                            <th>Teléfono</th>
+                            <th>Sangre</th>
+                            <th>Edad</th>
+                            <th>Domicilio</th>
+                            <th>CURP</th>
+                            <th>Correo</th>
+                            <th>Contacto de Emergencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P-001</td>
+                            <td>Ana Karen Garcia Lopez</td>
+                            <td>1995-05-12</td>
+                            <td>Femenino</td>
+                            <td>555012345</td>
+                            <td>O+</td>
+                            <td>30</td>
+                            <td>Av. Juarez 405</td>
+                            <td>GALK950512MDFRNS01</td>
+                            <td>ana.garcia95@email.com</td>
+                            <td>Valeria Mendez (5512345678)</td>
+                        </tr>
+                        <tr>
+                            <td>P-002</td>
+                            <td>Carlos Alberto Mendoza Castro</td>
+                            <td>1982-07-22</td>
+                            <td>Masculino</td>
+                            <td>55112345678</td>
+                            <td>B-</td>
+                            <td>44</td>
+                            <td>C. Roble 12</td>
+                            <td>MECO820722HDFNOS05</td>
+                            <td>carlos.mendoza@email.com</td>
+                            <td>Ricardo Tellez (5524680110)</td>
+                        </tr>
+                        <tr>
+                            <td>P-003</td>
+                            <td>Sofia Valentina Herrera Villanueva</td>
+                            <td>1994-11-05</td>
+                            <td>Femenino</td>
+                            <td>8187654321</td>
+                            <td>A+</td>
+                            <td>32</td>
+                            <td>Pino Suarez 890</td>
+                            <td>HERV940511MDFRR09</td>
+                            <td>sofia.herrera@email.com</td>
+                            <td>Sofia Alarcon (553691215)</td>
+                        </tr>
+                        <tr>
+                            <td>P-004</td>
+                            <td>Miguel Angel Rojas Villanueva</td>
+                            <td>12-01-2001</td>
+                            <td>Masculino</td>
+                            <td>3345678901</td>
+                            <td>A-</td>
+                            <td>25</td>
+                            <td>Region siracusa 1212a</td>
+                            <td>ROJM010112MDFJNS04</td>
+                            <td>m.rojas.v@email.com</td>
+                            <td>Diego Ferrat (5546882638)</td>
+                        </tr>
+                        <tr>
+                            <td>P-005</td>
+                            <td>Valeria Isamar Juarez Espinoza</td>
+                            <td>30-09-1978</td>
+                            <td>Femenino</td>
+                            <td>222267801</td>
+                            <td>B-</td>
+                            <td>48</td>
+                            <td>Rio Lerma 102</td>
+                            <td>JUEV780930MDFZN07</td>
+                            <td>valeria.juarez@email.com</td>
+                            <td>Camila Orozco (5567894560)</td>
+                        </tr>
+                        <tr>
+                            <td>P-006</td>
+                            <td>Camila Salinas Paredes</td>
+                            <td>02-08-2021</td>
+                            <td>Femenino</td>
+                            <td>9987654321</td>
+                            <td>O+</td>
+                            <td>4</td>
+                            <td>Calle 10 #450</td>
+                            <td>VAMF210802MDFLRS04</td>
+                            <td>fernando.valle@email.com</td>
+                            <td>Javier Solis (5510112778)</td>
+                        </tr>
+                        <tr>
+                            <td>P-007</td>
+                            <td>Fernando Del Valle Montes</td>
+                            <td>18-05-12</td>
+                            <td>Masculino</td>
+                            <td>6641234567</td>
+                            <td>B-</td>
+                            <td>14</td>
+                            <td>Av. Mexico 2304</td>
+                            <td>VAMF120518HDFLN03</td>
+                            <td>fernando.valle@email.com</td>
+                            <td>Elena Duarte (5589012468)</td>
+                        </tr>
+                        <tr>
+                            <td>P-008</td>
+                            <td>Ricardo Treviño Salgado</td>
+                            <td>24-12-1969</td>
+                            <td>Masculino</td>
+                            <td>5428901234</td>
+                            <td>O-</td>
+                            <td>60</td>
+                            <td>Privada luna 5</td>
+                            <td>TRER691224HDFLNS08</td>
+                            <td>r.treviño.s@email.com</td>
+                            <td>Mateo Ibarra (5589012468)</td>
+                        </tr>
+                        <tr>
+                            <td>P-009</td>
+                            <td>Mariana Becerra Olvera</td>
+                            <td>02-11-1989</td>
+                            <td>Femenino</td>
+                            <td>6563210924</td>
+                            <td>O+</td>
+                            <td>37</td>
+                            <td>C. Mayorca #5016</td>
+                            <td>BEOM890610MDFLNS06</td>
+                            <td>m.becerra@email.com</td>
+                            <td>Ximena Luna (5590123456)</td>
+                        </tr>
+                        <tr>
+                            <td>P-010</td>
+                            <td>Jorge Luis Castañeda Ruiz</td>
+                            <td>27-05-05</td>
+                            <td>Masculino</td>
+                            <td>7776543210</td>
+                            <td>O-</td>
+                            <td>21</td>
+                            <td>Blvd. Zaragoza 2311</td>
+                            <td>CARJ020527HDFLNS10</td>
+                            <td>jorge.castañeda@email.com</td>
+                            <td>Adrian Pardo (5501234796)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="medicos" class="seccion-contenido">
+            <h1 class="titulo-seccion">Registro de Personal Médico</h1>
+            
+            <div class="contenedor-formulario">
+                <form id="form-medicos" onsubmit="guardarMedico(event)">
+                    <div class="grupo-form"><label>Nombre del Médico:</label><input type="text" id="m_nombre"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Cédula Profesional:</label><input type="text" id="m_cedula"></div>
+                        <div class="grupo-form" style="flex: 1;"><label>Especialidad:</label><input type="text" id="m_especialidad"></div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Turno:</label>
+                            <select id="m_turno">
+                                <option>Matutino</option>
+                                <option>Vespertino</option>
+                                <option>Nocturno</option>
+                                <option>Jornada Acumulada</option>
+                            </select>
+                        </div>
+                        <div class="grupo-form" style="flex: 1;"><label>Días de Trabajo:</label><input type="text" id="m_dias" placeholder="Lun-Vie"></div>
+                    </div>
+                    <div class="grupo-form"><label>Correo Electrónico:</label><input type="email" id="m_correo"></div>
+                    <div class="grupo-form"><label>Teléfono:</label><input type="tel" id="m_telefono"></div>
+                    <button type="submit" class="btn-enviar">Registrar Médico</button>
+                </form>
+            </div>
+
+            <h2 style="color: #F73696;">Personal Médico Registrado</h2>
+            <div class="tabla-responsiva">
+                <table id="tabla-medicos">
+                    <thead>
+                        <tr>
+                            <th>ID Médico</th>
+                            <th>Nombre del Médico</th>
+                            <th>Cédula Prof.</th>
+                            <th>Especialidad</th>
+                            <th>Edad</th>
+                            <th>Horario / Turno</th>
+                            <th>Días de Trabajo</th>
+                            <th>Domicilio</th>
+                            <th>Teléfono</th>
+                            <th>Correo Electrónico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MED-101</td>
+                            <td>Alejandro Villaseñor Ruiz</td>
+                            <td>5482931</td>
+                            <td>Cardiología</td>
+                            <td>30</td>
+                            <td>10:00am a 2:00pm</td>
+                            <td>Lunes a Viernes</td>
+                            <td>Blvd.Zaragoza 4038</td>
+                            <td>6564382631</td>
+                            <td>alexvr@email.com</td>
+                        </tr>
+                        <tr>
+                            <td>MED-202</td>
+                            <td>Elena Mendiola Soria</td>
+                            <td>7820456</td>
+                            <td>Pediatría</td>
+                            <td>30</td>
+                            <td>Vespertino 14:00-20:30</td>
+                            <td>Lunes a Viernes</td>
+                            <td>Gomez Morin</td>
+                            <td>6562173135</td>
+                            <td>elena.mend@email.com</td>
+                        </tr>
+                        <tr>
+                            <td>MED-303</td>
+                            <td>Ricardo Tellez Garcia</td>
+                            <td>7204133</td>
+                            <td>Neurología</td>
+                            <td>35</td>
+                            <td>Nocturno 20:30-6:30</td>
+                            <td>Lunes a Viernes</td>
+                            <td>C.Roma 1456</td>
+                            <td>6563152664</td>
+                            <td>ricardo.t@email.com</td>
+                        </tr>
+                        <tr>
+                            <td>MED-404</td>
+                            <td>Sofia Valenzuela Luna</td>
+                            <td>8301294</td>
+                            <td>Ginecología</td>
+                            <td>29</td>
+                            <td>Matutino 10:00-14:00</td>
+                            <td>Lunes a Domingo</td>
+                            <td>C.Costa Rica 198</td>
+                            <td>5552784138</td>
+                            <td>sofiavl@email.com</td>
+                        </tr>
+                        <tr>
+                            <td>MED-505</td>
+                            <td>Mauricio Islas Duarte</td>
+                            <td>4920183</td>
+                            <td>Traumatología</td>
+                            <td>40</td>
+                            <td>Jornada acumulada</td>
+                            <td>Sábados-Domingos</td>
+                            <td>Region Montemayor 2771</td>
+                            <td>6564387789</td>
+                            <td>mauislas@email.com</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="expediente" class="seccion-contenido">
+            <h1 class="titulo-seccion">Nuevo Registro en Expediente</h1>
+            
+            <div class="contenedor-formulario">
+                <form id="form-pacientes" onsubmit="guardarPaciente(event)">
+                    <div class="grupo-form"><label>Nombre Completo:</label><input type="text" id="p_nombre" placeholder="Ej. Ana Karen Garcia Lopez"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Nacimiento:</label><input type="date" id="p_nacimiento"></div>
+                        <div class="grupo-form" style="flex: 1;"><label>Género:</label>
+                            <select id="p_genero">
+                                <option>Seleccione...</option>
+                                <option>Femenino</option>
+                                <option>Masculino</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="grupo-form" style="flex: 1;"><label>Teléfono:</label><input type="tel" id="p_telefono"></div>
+                        <div class="grupo-form" style="flex: 1;"><label>Tipo de Sangre:</label><input type="text" id="p_sangre" placeholder="O+"></div>
+                    </div>
+                    <div class="grupo-form"><label>CURP:</label><input type="text" id="p_curp"></div>
+                    <div class="grupo-form"><label>Domicilio:</label><input type="text" id="p_domicilio"></div>
+                    <div class="grupo-form"><label>Correo Electrónico:</label><input type="email" id="p_correo"></div>
+                    <div class="grupo-form"><label>Contacto de Emergencia:</label><input type="text" id="p_emergencia" placeholder="Nombre y Teléfono"></div>
+                    <div class="grupo-form"><label>Signos Vitales:</label><input type="text" id="p_signos"></div>
+                    <div class="grupo-form"><label>Diagnostico:</label><input type="text" id="p_diagnostico"></div>
+                    <div class="grupo-form"><label>Tratamiento Sugerido:</label><input type="text" id="p_tratamiento"></div>
+                    <button type="submit" class="btn-enviar">Guardar Paciente</button>
+                </form>
+            </div>
+
+            <h2 style="color: #F73696;">Registros de Expediente Históricos</h2>
+            <div class="tabla-responsiva">
+                <table id="tabla-expedientes">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacimiento</th>
+                            <th>Género</th>
+                            <th>Teléfono</th>
+                            <th>Sangre</th>
+                            <th>Edad</th>
+                            <th>Domicilio</th>
+                            <th>CURP</th>
+                            <th>Correo</th>
+                            <th>Contacto de Emergencia</th>
+                            <th>Signos Vitales</th>
+                            <th>Diagnóstico</th>
+                            <th>Tratamiento Sugerido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P-001</td>
+                            <td>Ana Karen Garcia Lopez</td>
+                            <td>12-05-1995</td>
+                            <td>Femenino</td>
+                            <td>555012345</td>
+                            <td>O+</td>
+                            <td>30</td>
+                            <td>Av. Juarez 405</td>
+                            <td>GALK950512MDFRNS01</td>
+                            <td>ana.garcia95@email.com</td>
+                            <td>Valeria Mendez (5512345678)</td>
+                            <td>120/80 mmHg, 70 lpm, 36.4°C</td>
+                            <td>Herida quirúrgica</td>
+                            <td>Retiro de puntos y curación local</td>
+                        </tr>
+                        <tr>
+                            <td>P-002</td>
+                            <td>Carlos Alberto Mendoza Castro</td>
+                            <td>22-07-1982</td>
+                            <td>Masculino</td>
+                            <td>55112345678</td>
+                            <td>B-</td>
+                            <td>44</td>
+                            <td>C. Roble 12</td>
+                            <td>MECO820722HDFNOS05</td>
+                            <td>carlos.mendoza@email.com</td>
+                            <td>Ricardo Tellez (5524680110)</td>
+                            <td>110/70 mmHg, 80 lpm, 36.6°C</td>
+                            <td>Embarazo normoevolutivo</td>
+                            <td>Acido fólico</td>
+                        </tr>
+                        <tr>
+                            <td>P-003</td>
+                            <td>Sofia Valentina Herrera Villanueva</td>
+                            <td>05-11-1994</td>
+                            <td>Femenino</td>
+                            <td>8187654321</td>
+                            <td>A+</td>
+                            <td>32</td>
+                            <td>Pino Suarez 890</td>
+                            <td>HERV940511MDFRR09</td>
+                            <td>sofia.herrera@email.com</td>
+                            <td>Sofia Alarcon (553691215)</td>
+                            <td>115/75 mmHg, 78 lpm, 38.5°C</td>
+                            <td>Influenza estacional</td>
+                            <td>Oseltamivir, hidratación y reposo</td>
+                        </tr>
+                        <tr>
+                            <td>P-004</td>
+                            <td>Miguel Angel Rojas Villanueva</td>
+                            <td>12-01-2001</td>
+                            <td>Masculino</td>
+                            <td>3345678901</td>
+                            <td>A-</td>
+                            <td>25</td>
+                            <td>Region siracusa 1212a</td>
+                            <td>ROJM010112MDFJNS04</td>
+                            <td>m.rojas.v@email.com</td>
+                            <td>Diego Ferrat (5546882638)</td>
+                            <td>120/80 mmHg, 72 lpm, 36.5°C</td>
+                            <td>Esguince tobillo</td>
+                            <td>Rehabilitación física y vendaje</td>
+                        </tr>
+                        <tr>
+                            <td>P-005</td>
+                            <td>Valeria Isamar Juarez Espinoza</td>
+                            <td>30-09-1978</td>
+                            <td>Femenino</td>
+                            <td>222267801</td>
+                            <td>B-</td>
+                            <td>48</td>
+                            <td>Rio Lerma 102</td>
+                            <td>JUEV780930MDFZN07</td>
+                            <td>valeria.juarez@email.com</td>
+                            <td>Camila Orozco (5567894560)</td>
+                            <td>------</td>
+                            <td>Cita_cancelada</td>
+                            <td>No aplica</td>
+                        </tr>
+                        <tr>
+                            <td>P-006</td>
+                            <td>Camila Salinas Paredes</td>
+                            <td>02-08-2021</td>
+                            <td>Femenino</td>
+                            <td>9987654321</td>
+                            <td>O+</td>
+                            <td>4</td>
+                            <td>Calle 10 #450</td>
+                            <td>VAMF210802MDFLRS04</td>
+                            <td>fernando.valle@email.com</td>
+                            <td>Javier Solis (5510112778)</td>
+                            <td>145/95 mmHg, 95 lpm, 36.7°C</td>
+                            <td>Hipertensión</td>
+                            <td>Electrocardiograma</td>
+                        </tr>
+                        <tr>
+                            <td>P-007</td>
+                            <td>Fernando Del Valle Montes</td>
+                            <td>18-05-12</td>
+                            <td>Masculino</td>
+                            <td>6641234567</td>
+                            <td>B-</td>
+                            <td>14</td>
+                            <td>Av. Mexico 2304</td>
+                            <td>VAMF120518HDFLN03</td>
+                            <td>fernando.valle@email.com</td>
+                            <td>Elena Duarte (5589012468)</td>
+                            <td>100/65 mmHg, 105 lpm, 36.5°C</td>
+                            <td>Colesterol</td>
+                            <td>Dieta</td>
+                        </tr>
+                        <tr>
+                            <td>P-008</td>
+                            <td>Ricardo Treviño Salgado</td>
+                            <td>24-12-1969</td>
+                            <td>Masculino</td>
+                            <td>5428901234</td>
+                            <td>O-</td>
+                            <td>60</td>
+                            <td>Privada luna 5</td>
+                            <td>TRER691224HDFLNS08</td>
+                            <td>r.treviño.s@email.com</td>
+                            <td>Mateo Ibarra (5589012468)</td>
+                            <td>(NULL)</td>
+                            <td>Vacunación</td>
+                            <td>Rehabilitación física y vendaje</td>
+                        </tr>
+                        <tr>
+                            <td>P-009</td>
+                            <td>Mariana Becerra Olvera</td>
+                            <td>02-11-1989</td>
+                            <td>Femenino</td>
+                            <td>6563210924</td>
+                            <td>O+</td>
+                            <td>37</td>
+                            <td>C. Mayorca #5016</td>
+                            <td>BEOM890610MDFLNS06</td>
+                            <td>m.becerra@email.com</td>
+                            <td>Ximena Luna (5590123456)</td>
+                            <td>122/8 mmHg, 74 lpm, 36.8°C</td>
+                            <td>Caja tensional</td>
+                            <td>Higiene del sueño</td>
+                        </tr>
+                        <tr>
+                            <td>P-010</td>
+                            <td>Jorge Luis Castañeda Ruiz</td>
+                            <td>27-05-05</td>
+                            <td>Masculino</td>
+                            <td>7776543210</td>
+                            <td>O-</td>
+                            <td>21</td>
+                            <td>Blvd. Zaragoza 2311</td>
+                            <td>CARJ020527HDFLNS10</td>
+                            <td>jorge.castañeda@email.com</td>
+                            <td>Adrian Pardo (5501234796)</td>
+                            <td>110/95 mmHgC</td>
+                            <td>Artritis Reumatoide</td>
+                            <td>Análisis de factor</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>Nombre completo: Marrufo Alvarado Oyuki Alejandra | No.Control: a.24308051280591 | Semestre: 4to | Grupo: I | Especialidad: Programación</p>
+    </footer>
+
+</body>
+</html>
